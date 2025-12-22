@@ -54,7 +54,6 @@ public class ArticuloService{
                         s.getId(),
                         s.getTitulo(),
                         s.getTipo(),
-                        s.getNivel(),
                         s.getOrden(),
                         s.getCuerpo(),
                         s.getMultimedia()
@@ -194,7 +193,6 @@ public class ArticuloService{
                         seccion.getId(),
                         seccion.getTitulo(),
                         seccion.getTipo(),
-                        seccion.getNivel(),
                         seccion.getOrden(),
                         seccion.getCuerpo(),      // Contenido de texto
                         seccion.getMultimedia()// url de la foto (si hay)
