@@ -1,11 +1,8 @@
-package com.muteam.backend.models;
-
-import jakarta.persistence.Id;
+package com.muteam.backend.dto;
 
 import java.time.OffsetDateTime;
 
-public class Persona {
-    @Id
+public class PersonaResponseDTO {
     private int id;
     private int articlo_id;
     private String nombre;
@@ -17,7 +14,7 @@ public class Persona {
     private String lore;
     private int evento_destacado_id;
 
-    public Persona(int id, int articlo_id, String nombre, String apodos, OffsetDateTime cumple, String telefono, String direccion, String estado, String lore, int evento_destacado_id) {
+    public PersonaResponseDTO(int id, int articlo_id, String nombre, String apodos, OffsetDateTime cumple, String telefono, String direccion, String estado, String lore, int evento_destacado_id) {
         this.id = id;
         this.articlo_id = articlo_id;
         this.nombre = nombre;
