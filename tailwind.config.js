@@ -7,9 +7,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        'wiki-primary': '#1e3a8a', // Azul oscuro
-        'wiki-accent': '#fbbf24',  // Dorado
-        'wiki-bg': '#f3f4f6',      // Gris claro fondo
+        'wiki-bg': '#09090b', 
+        'wiki-block': '#18181b', 
+        'wiki-border': '#27272a',
+        'wiki-text': '#e4e4e7',
+        'wiki-muted': '#a1a1aa', 
+        'wiki-accent': '#6366f1',
       },
     },
   },
