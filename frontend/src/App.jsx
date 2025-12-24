@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage';
 
 // COMPONENTES TEMPORALES
-const HomePage = () => <h1>Bienvenido al Home (Soy temporal)</h1>;
 const DetallePage = () => <h1>Detalle del Personaje (Soy temporal)</h1>;
 
 function App() {
