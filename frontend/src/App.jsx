@@ -1,16 +1,26 @@
-import { Routes, Route } from 'react-router-dom';
-import Home from './pages/Home'; // Importamos tu nuevo componente
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+
+// COMPONENTES TEMPORALES
+const HomePage = () => <h1>Bienvenido al Home (Soy temporal)</h1>;
+const DetallePage = () => <h1>Detalle del Personaje (Soy temporal)</h1>;
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
-      {/* Aquí definimos las rutas de navegación */}
+    <BrowserRouter>
       <Routes>
-        {/* Cuando la ruta sea "/" (la raíz), muestra el Home */}
-        <Route path="/" element={<Home />} />
+        {/* Ruta Pública: Login */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Rutas Privadas (Idealmente aquí iría protección después) */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/persona/:id" element={<DetallePage />} />
+
+        {/* Si escriben cualquier cosa rara, mandar al Home o Login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </div>
+    </BrowserRouter>
   );
 }
 
-export default App
+export default App;
