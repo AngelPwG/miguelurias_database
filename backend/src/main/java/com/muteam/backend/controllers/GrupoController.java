@@ -1,8 +1,7 @@
 package com.muteam.backend.controllers;
 
-
-import com.muteam.backend.dto.EventoResponseDTO;
-import com.muteam.backend.services.EventoService;
+import com.muteam.backend.dto.GrupoResponseDTO;
+import com.muteam.backend.services.GrupoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,18 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/eventos")
+@RequestMapping("/api/grupos")
 @CrossOrigin(origins = "http://localhost:5173")
-public class EventoController {
+public class GrupoController {
 
-    private final EventoService eventoService;
+    private final GrupoService grupoService;
 
-    public EventoController(EventoService eventoService) {
-        this.eventoService = eventoService;
+    public GrupoController(GrupoService grupoService) {
+        this.grupoService = grupoService;
     }
 
     @GetMapping
-    public ResponseEntity<List<EventoResponseDTO>> obtenerEventos(){
-        return ResponseEntity.ok(eventoService.obtenerEventos());
+    public ResponseEntity<List<GrupoResponseDTO>> obtenerGrupos(){
+        return ResponseEntity.ok(grupoService.obtenerGrupos());
     }
 }
