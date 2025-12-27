@@ -1,8 +1,8 @@
-package com.muteam.backend.models;
+package com.muteam.backend.dto.response;
 
 import java.time.OffsetDateTime;
 
-public class Evento {
+public class EventoResponseDTO {
     private int id;
     private int artucullo_id;
     private String titulo;
@@ -11,7 +11,7 @@ public class Evento {
     private OffsetDateTime fecha_creacion;
     private OffsetDateTime fecha_actualizacion;
 
-    public Evento(int id, int artucullo_id, String titulo, String tipo, long vistas, OffsetDateTime fecha_creacion, OffsetDateTime fecha_actualizacion) {
+    public EventoResponseDTO(int id, int artucullo_id, String titulo, String tipo, long vistas, OffsetDateTime fecha_creacion, OffsetDateTime fecha_actualizacion) {
         this.id = id;
         this.artucullo_id = artucullo_id;
         this.titulo = titulo;

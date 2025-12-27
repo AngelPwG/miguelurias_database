@@ -1,4 +1,4 @@
-package com.muteam.backend.models;
+package com.muteam.backend.model;
 
 public class Grupo {
     private int id;

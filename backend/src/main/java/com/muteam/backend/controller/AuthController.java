@@ -1,9 +1,11 @@
 package com.muteam.backend.controller;
 
 import com.muteam.backend.dto.request.LoginRequest;
+import com.muteam.backend.dto.response.EventoResponseDTO;
 import com.muteam.backend.model.Usuario;
 import com.muteam.backend.repository.UsuarioRepository;
 import com.muteam.backend.security.JwtTokenProvider;
+import com.muteam.backend.service.EventoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -97,4 +100,5 @@ public class AuthController {
 
         return ResponseEntity.status(404).body("Usuario no encontrado");
     }
+
 }
