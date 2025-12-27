@@ -1,13 +1,13 @@
-package com.muteam.backend.models;
+package com.muteam.backend.dto.response;
 
-public class Grupo {
+public class GrupoResponseDTO {
     private int id;
     private int articulo_id;
     private String nombre;
     private String lider;
     private String descripcion;
 
-    public Grupo(int id, int articulo_id, String nombre, String lider, String descripcion) {
+    public GrupoResponseDTO(int id, int articulo_id, String nombre, String lider, String descripcion) {
         this.id = id;
         this.articulo_id = articulo_id;
         this.nombre = nombre;

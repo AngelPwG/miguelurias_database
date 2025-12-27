@@ -1,7 +1,7 @@
-package com.muteam.backend.services;
+package com.muteam.backend.service;
 
-import com.muteam.backend.dto.EventoResponseDTO;
-import com.muteam.backend.models.Evento;
+import com.muteam.backend.dto.response.EventoResponseDTO;
+import com.muteam.backend.model.Seccion;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -11,7 +11,7 @@ import java.util.List;
 public class EventoService {
     public List<EventoResponseDTO> obtenerEventos(){
 
-        Evento eventoPrueba = new Evento(
+        Seccion.Evento eventoPrueba = new Seccion.Evento(
                 1,
                 1,
                 "Falseada",

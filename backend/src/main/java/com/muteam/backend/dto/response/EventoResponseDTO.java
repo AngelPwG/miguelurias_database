@@ -1,4 +1,4 @@
-package com.muteam.backend.dto;
+package com.muteam.backend.dto.response;
 
 import java.time.OffsetDateTime;
 

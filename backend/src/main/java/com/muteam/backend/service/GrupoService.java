@@ -1,7 +1,7 @@
-package com.muteam.backend.services;
+package com.muteam.backend.service;
 
-import com.muteam.backend.dto.GrupoResponseDTO;
-import com.muteam.backend.models.Grupo;
+import com.muteam.backend.dto.response.GrupoResponseDTO;
+import com.muteam.backend.model.Grupo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

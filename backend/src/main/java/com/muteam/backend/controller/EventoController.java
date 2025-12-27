@@ -1,8 +1,7 @@
-package com.muteam.backend.controllers;
+package com.muteam.backend.controller;
 
-
-import com.muteam.backend.dto.EventoResponseDTO;
-import com.muteam.backend.services.EventoService;
+import com.muteam.backend.dto.response.EventoResponseDTO;
+import com.muteam.backend.service.EventoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +22,7 @@ public class EventoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventoResponseDTO>> obtenerEventos(){
+    public ResponseEntity<List<EventoResponseDTO>> obtenerEvento(){
         return ResponseEntity.ok(eventoService.obtenerEventos());
     }
 }

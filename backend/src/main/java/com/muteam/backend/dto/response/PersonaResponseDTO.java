@@ -1,13 +1,10 @@
-package com.muteam.backend.models;
-
-import jakarta.persistence.Id;
+package com.muteam.backend.dto.response;
 
 import java.time.OffsetDateTime;
 
-public class Persona {
-    @Id
+public class PersonaResponseDTO {
     private int id;
-    private int articlo_id;
+    private int articulo_id;
     private String nombre;
     private String apodos;
     private OffsetDateTime cumple;
@@ -17,9 +14,9 @@ public class Persona {
     private String lore;
     private int evento_destacado_id;
 
-    public Persona(int id, int articlo_id, String nombre, String apodos, OffsetDateTime cumple, String telefono, String direccion, String estado, String lore, int evento_destacado_id) {
+    public PersonaResponseDTO(int id, int articlo_id, String nombre, String apodos, OffsetDateTime cumple, String telefono, String direccion, String estado, String lore, int evento_destacado_id) {
         this.id = id;
-        this.articlo_id = articlo_id;
+        this.articulo_id = articlo_id;
         this.nombre = nombre;
         this.apodos = apodos;
         this.cumple = cumple;
@@ -38,12 +35,12 @@ public class Persona {
         this.id = id;
     }
 
-    public int getArticlo_id() {
-        return articlo_id;
+    public int getArticulo_id() {
+        return articulo_id;
     }
 
-    public void setArticlo_id(int articlo_id) {
-        this.articlo_id = articlo_id;
+    public void setArticulo_id(int articulo_id) {
+        this.articulo_id = articulo_id;
     }
 
     public String getNombre() {

@@ -1,7 +1,7 @@
-package com.muteam.backend.controllers;
+package com.muteam.backend.controller;
 
-import com.muteam.backend.dto.GrupoResponseDTO;
-import com.muteam.backend.services.GrupoService;
+import com.muteam.backend.dto.response.GrupoResponseDTO;
+import com.muteam.backend.service.GrupoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +22,8 @@ public class GrupoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GrupoResponseDTO>> obtenerGrupos(){
+    public ResponseEntity<List<GrupoResponseDTO>> obtenerGrupo(){
         return ResponseEntity.ok(grupoService.obtenerGrupos());
     }
+
 }
