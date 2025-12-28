@@ -2,30 +2,29 @@ package com.muteam.backend.service;
 
 import com.muteam.backend.dto.response.GrupoResponseDTO;
 import com.muteam.backend.model.Grupo;
+import com.muteam.backend.repository.GrupoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GrupoService {
 
-    public List<GrupoResponseDTO> obtenerGrupos(){
-        Grupo grupoPrueba = new Grupo(
-                1,
-                1,
-                "MUteam",
-                "Piwi",
-                "Equipo que encargó del desarrollo de MiguelUriasDataBase"
-        );
+    private final GrupoRepository grupoRepository;
 
-        GrupoResponseDTO dto = new GrupoResponseDTO(
-                grupoPrueba.getId(),
-                grupoPrueba.getArticulo_id(),
-                grupoPrueba.getNombre(),
-                grupoPrueba.getLider(),
-                grupoPrueba.getDescripcion()
-        );
+    public GrupoService(GrupoRepository grupoRepository) {
+        this.grupoRepository = grupoRepository;
+    }
 
-        return List.of(dto);
+    public List<GrupoResponseDTO> obtenerGrupos() {
+        return grupoRepository.findAll().stream()
+                .map(grupo -> new GrupoResponseDTO(
+                        grupo.getId(),
+                        grupo.getArticuloId(),
+                        grupo.getNombre(),
+                        grupo.getLiderNombre(),
+                        grupo.getDescripcion()))
+                .collect(Collectors.toList());
     }
 }

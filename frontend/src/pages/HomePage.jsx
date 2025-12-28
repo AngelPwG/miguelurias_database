@@ -1,13 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PersonajeCard from '../components/PersonajeCard';
-import { listaDePersonajes, listaDeEventos } from '../data';
+import { listaDeEventos } from '../data';
+import { obtenerPersonas } from '../api/personaService';
 
 const Home = () => {
+  const navigate = useNavigate();
   const [seccionActual, setSeccionActiva] = useState('PERSONAJES');
+  const [personas, setPersonas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Cargar personas desde el backend
+  useEffect(() => {
+    const cargarPersonas = async () => {
+      try {
+        setLoading(true);
+        const data = await obtenerPersonas();
+        setPersonas(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error cargando personas:', err);
+        setError('No se pudieron cargar las personas. ¿Está el servidor corriendo?');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarPersonas();
+  }, []);
 
   // Tomamos el primer evento como "Destacado"
-  // Si no hay foto, usamos un color gris por defecto
   const eventoDestacado = listaDeEventos[0];
+
+  // Función de logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen bg-wiki-bg text-wiki-text p-4 md:p-8 font-mono">
@@ -21,9 +51,25 @@ const Home = () => {
           <p className="text-wiki-muted text-sm mt-1">Base de datos de la familia</p>
         </div>
 
-        <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-wiki-block border border-wiki-border rounded text-xs text-green-400">
-          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-          SYSTEM ONLINE
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/crear-persona')}
+            className="px-4 py-2 bg-wiki-accent text-black font-bold hover:bg-green-400 transition-colors text-sm"
+          >
+            + NUEVA PERSONA
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 border border-red-500 text-red-400 hover:bg-red-500 hover:text-white transition-colors text-sm"
+          >
+            CERRAR SESIÓN
+          </button>
+
+          <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-wiki-block border border-wiki-border rounded text-xs text-green-400">
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            SYSTEM ONLINE
+          </div>
         </div>
       </header>
 
@@ -38,8 +84,8 @@ const Home = () => {
             <button
               onClick={() => setSeccionActiva('PERSONAJES')}
               className={`pb-2 px-1 text-sm font-bold uppercase tracking-wider transition-colors border-b-2 ${seccionActual === 'PERSONAJES'
-                  ? 'border-wiki-accent text-white'
-                  : 'border-transparent text-wiki-muted hover:text-white'
+                ? 'border-wiki-accent text-white'
+                : 'border-transparent text-wiki-muted hover:text-white'
                 }`}
             >
               [01] Personajes
@@ -47,8 +93,8 @@ const Home = () => {
             <button
               onClick={() => setSeccionActiva('EVENTOS')}
               className={`pb-2 px-1 text-sm font-bold uppercase tracking-wider transition-colors border-b-2 ${seccionActual === 'EVENTOS'
-                  ? 'border-wiki-accent text-white'
-                  : 'border-transparent text-wiki-muted hover:text-white'
+                ? 'border-wiki-accent text-white'
+                : 'border-transparent text-wiki-muted hover:text-white'
                 }`}
             >
               [02] Eventos
@@ -60,15 +106,41 @@ const Home = () => {
 
             {/* LÓGICA DE PERSONAJES */}
             {seccionActual === 'PERSONAJES' ? (
-              listaDePersonajes.map((personaje) => (
-                <PersonajeCard
-                  key={personaje.id}
-                  id={personaje.id}
-                  nombreCompleto={personaje.nombreCompleto}
-                  titulo={personaje.titulo}
-                  fotoUrl={personaje.fotoUrl}
-                />
-              ))
+              <>
+                {/* Estado de Loading */}
+                {loading && (
+                  <div className="col-span-full text-center py-8 text-wiki-muted">
+                    <p>Cargando personas desde el servidor...</p>
+                  </div>
+                )}
+
+                {/* Estado de Error */}
+                {error && (
+                  <div className="col-span-full">
+                    <div className="bg-red-900/20 border border-red-500 text-red-300 p-4 rounded">
+                      <p className="font-bold">⚠️ Error</p>
+                      <p className="text-sm mt-1">{error}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Lista de Personas */}
+                {!loading && !error && personas.length === 0 && (
+                  <div className="col-span-full text-center py-8 text-wiki-muted">
+                    <p>No hay personas registradas aún.</p>
+                  </div>
+                )}
+
+                {!loading && !error && personas.map((persona) => (
+                  <PersonajeCard
+                    key={persona.id}
+                    id={persona.id}
+                    nombreCompleto={persona.nombre}
+                    titulo={persona.apodos || 'Sin apodo'}
+                    fotoUrl={persona.imagenPortadaUrl}
+                  />
+                ))}
+              </>
             ) : (
               // LÓGICA DE EVENTOS (AQUÍ AGREGAMOS LA FOTO)
               listaDeEventos.map((evento) => (
@@ -138,7 +210,7 @@ const Home = () => {
               <p className="text-xs text-wiki-muted">ESTADO DE RED:</p>
               <div className="flex justify-between text-sm mt-1">
                 <span>Nodos Activos:</span>
-                <span className="font-mono text-green-500">{listaDePersonajes.length + listaDeEventos.length}</span>
+                <span className="font-mono text-green-500">{personas.length + listaDeEventos.length}</span>
               </div>
             </div>
           </div>

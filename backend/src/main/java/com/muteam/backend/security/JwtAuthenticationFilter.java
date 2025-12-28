@@ -27,23 +27,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
 
         String token = getJwtFromRequest(request);
 
-        if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
-            String username = tokenProvider.getUsernameFromJWT(token);
+        if (StringUtils.hasText(token)) {
+            System.out.println("DEBUG: Token found in header: " + token.substring(0, 10) + "...");
 
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            if (tokenProvider.validateToken(token)) {
+                String username = tokenProvider.getUsernameFromJWT(token);
+                System.out.println("DEBUG: Token valid. User: " + username);
 
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities()
-            );
+                try {
+                    UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
 
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    System.out.println("DEBUG: SecurityContext set for user: " + username);
+                } catch (Exception e) {
+                    System.out.println("DEBUG: User not found or auth failed: " + e.getMessage());
+                }
+            } else {
+                System.out.println("DEBUG: Token validation returned FALSE");
+            }
+        } else {
+            System.out.println("DEBUG: No bearer token found in request to " + request.getRequestURI());
         }
 
         filterChain.doFilter(request, response);
