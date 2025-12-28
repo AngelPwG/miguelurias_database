@@ -60,18 +60,32 @@ const EditarPersonaPage = () => {
             try {
                 setLoading(true);
 
-                // 0. Cargar listas completas (personas, grupos, eventos)
+                // 0. Cargar listas completas (personas, grupos, eventos) INDEPENDIENTEMENTE
+                
+                // Personas
                 try {
-                    const [listaPersonas, listaGrupos, listaEventos] = await Promise.all([
-                        obtenerPersonas(),
-                        obtenerGrupos(),
-                        obtenerEventos()
-                    ]);
+                    console.log("Cargando lista de personas...");
+                    const listaPersonas = await obtenerPersonas();
+                    console.log("Lista de personas cargada:", listaPersonas);
                     setTodasPersonas(listaPersonas);
+                } catch (e) {
+                    console.error("Error cargando personas:", e);
+                }
+
+                // Grupos
+                try {
+                    const listaGrupos = await obtenerGrupos();
                     setTodosGrupos(listaGrupos);
+                } catch (e) {
+                    console.error("Error cargando grupos:", e);
+                }
+
+                // Eventos
+                try {
+                    const listaEventos = await obtenerEventos();
                     setTodosEventos(listaEventos);
                 } catch (e) {
-                    console.error("Error cargando listas auxiliares", e);
+                    console.error("Error cargando eventos:", e);
                 }
 
                 // 1. Obtener Persona

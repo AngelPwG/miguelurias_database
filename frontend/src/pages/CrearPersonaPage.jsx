@@ -61,16 +61,33 @@ const CrearPersonaPage = () => {
     useEffect(() => {
         const cargarDatos = async () => {
             try {
-                const [listaPersonas, listaGrupos, listaEventos] = await Promise.all([
-                    obtenerPersonas(),
-                    obtenerGrupos(),
-                    obtenerEventos()
-                ]);
-                setTodasPersonas(listaPersonas);
-                setTodosGrupos(listaGrupos);
-                setTodosEventos(listaEventos);
+                // Personas
+                try {
+                    console.log("Cargando lista de personas...");
+                    const listaPersonas = await obtenerPersonas();
+                    console.log("Lista de personas cargada:", listaPersonas);
+                    setTodasPersonas(listaPersonas);
+                } catch (e) {
+                    console.error("Error cargando personas:", e);
+                }
+
+                // Grupos
+                try {
+                    const listaGrupos = await obtenerGrupos();
+                    setTodosGrupos(listaGrupos);
+                } catch (e) {
+                    console.error("Error cargando grupos:", e);
+                }
+
+                // Eventos
+                try {
+                    const listaEventos = await obtenerEventos();
+                    setTodosEventos(listaEventos);
+                } catch (e) {
+                    console.error("Error cargando eventos:", e);
+                }
             } catch (err) {
-                console.error("Error al cargar listas:", err);
+                console.error("Error general al cargar listas:", err);
             }
         };
         cargarDatos();
