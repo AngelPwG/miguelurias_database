@@ -1,37 +1,31 @@
 package com.muteam.backend.service;
 
 import com.muteam.backend.dto.response.EventoResponseDTO;
-import com.muteam.backend.model.Seccion;
+import com.muteam.backend.repository.EventoRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EventoService {
-    public List<EventoResponseDTO> obtenerEventos(){
 
-        Seccion.Evento eventoPrueba = new Seccion.Evento(
-                1,
-                1,
-                "Falseada",
-                "nose",
-                10,
-                OffsetDateTime.now(),
-                OffsetDateTime.now()
-        );
+    private final EventoRepository eventoRepository;
 
-        EventoResponseDTO dto = new EventoResponseDTO(
-                eventoPrueba.getId(),
-                eventoPrueba.getArtucullo_id(),
-                eventoPrueba.getTitulo(),
-                eventoPrueba.getTipo(),
-                eventoPrueba.getVistas(),
-                eventoPrueba.getFecha_creacion(),
-                eventoPrueba.getFecha_actualizacion()
-        );
-
-        return List.of(dto);
+    public EventoService(EventoRepository eventoRepository) {
+        this.eventoRepository = eventoRepository;
     }
 
+    public List<EventoResponseDTO> obtenerEventos() {
+        return eventoRepository.findAll().stream()
+                .map(evento -> new EventoResponseDTO(
+                        evento.getId(),
+                        evento.getArticuloId(),
+                        evento.getNombre(),
+                        evento.getFechaIni(),
+                        evento.getFechaFin(),
+                        evento.getUbicacion(),
+                        evento.getSinopsis()))
+                .collect(Collectors.toList());
+    }
 }

@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,9 +29,9 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     public AuthController(AuthenticationManager authenticationManager,
-                          JwtTokenProvider tokenProvider,
-                          UsuarioRepository usuarioRepository,
-                          PasswordEncoder passwordEncoder) {
+            JwtTokenProvider tokenProvider,
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.usuarioRepository = usuarioRepository;
@@ -42,18 +41,30 @@ public class AuthController {
     // TAREA LUNES 3: Registro de Usuarios con contraseña encriptada
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Usuario usuario) {
-        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Error: El email ya está registrado.");
+        try {
+            if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Error: El email ya está registrado."));
+            }
+
+            if (usuarioRepository.findByUsername(usuario.getUsername()).isPresent()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("message", "Error: El nombre de usuario ya está en uso."));
+            }
+
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+
+            if (usuario.getRol() == null || usuario.getRol().isEmpty()) {
+                usuario.setRol("lector");
+            }
+
+            usuarioRepository.save(usuario);
+            return ResponseEntity.ok(Map.of("message", "Usuario registrado exitosamente"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("message", "Error interno al registrar usuario: " + e.getMessage()));
         }
-
-        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-
-        if (usuario.getRol() == null || usuario.getRol().isEmpty()) {
-            usuario.setRol("lector");
-        }
-
-        usuarioRepository.save(usuario);
-        return ResponseEntity.ok("Usuario registrado exitosamente");
     }
 
     // TAREA MARTES 2: Login
@@ -61,8 +72,7 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-            );
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String jwt = tokenProvider.generateToken(authentication);
