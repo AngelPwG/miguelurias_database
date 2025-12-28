@@ -265,11 +265,19 @@ public class PersonaService {
         // Borrar todas las relaciones donde esta persona esté involucrada (Origen o
         // Destino)
         personaRelacionRepository.deleteAllByPersonaOrigenIdOrPersonaDestinoId(persona.getId(), persona.getId());
+        personaRelacionRepository.flush(); // Force delete execution
 
         // Insertar las nuevas
         if (personaDTO.getRelaciones() != null) {
+            java.util.Set<Long> processedIds = new java.util.HashSet<>();
             for (var relDTO : personaDTO.getRelaciones()) {
                 if (relDTO.personaDestinoId() != null) {
+                    // Prevent duplicates in the payload
+                    if (processedIds.contains(relDTO.personaDestinoId())) {
+                        continue;
+                    }
+                    processedIds.add(relDTO.personaDestinoId());
+
                     Persona destino = personaRepository.findById(relDTO.personaDestinoId())
                             .orElseThrow(() -> new RuntimeException(
                                     "Persona destino no encontrada: " + relDTO.personaDestinoId()));
