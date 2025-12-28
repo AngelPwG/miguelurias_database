@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 @Getter
 @Entity
 @Table(name = "secciones")
-public class Seccion{
+public class Seccion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,7 +19,7 @@ public class Seccion{
     @JsonIgnore // Al convertir a JSON, no vuelvas a pintar el padre completo
     private Articulo articulo;
 
-    @Column(name="titulo")
+    @Column(name = "titulo")
     private String titulo;
 
     @Column(columnDefinition = "TEXT")
@@ -38,7 +38,8 @@ public class Seccion{
     @JoinColumn(name = "multimedia_id")
     private Multimedia multimedia;
 
-    public Seccion() {}
+    public Seccion() {
+    }
 
     public void setId(Long id) {
         this.id = id;
@@ -89,7 +90,8 @@ public class Seccion{
         private String lore;
         private int evento_destacado_id;
 
-        public Persona(int id, int articlo_id, String nombre, String apodos, OffsetDateTime cumple, String telefono, String direccion, String estado, String lore, int evento_destacado_id) {
+        public Persona(int id, int articlo_id, String nombre, String apodos, OffsetDateTime cumple, String telefono,
+                String direccion, String estado, String lore, int evento_destacado_id) {
             this.id = id;
             this.articlo_id = articlo_id;
             this.nombre = nombre;
@@ -192,7 +194,8 @@ public class Seccion{
         private OffsetDateTime fecha_creacion;
         private OffsetDateTime fecha_actualizacion;
 
-        public Evento(int id, int artucullo_id, String titulo, String tipo, long vistas, OffsetDateTime fecha_creacion, OffsetDateTime fecha_actualizacion) {
+        public Evento(int id, int artucullo_id, String titulo, String tipo, long vistas, OffsetDateTime fecha_creacion,
+                OffsetDateTime fecha_actualizacion) {
             this.id = id;
             this.artucullo_id = artucullo_id;
             this.titulo = titulo;

@@ -2,22 +2,27 @@ package com.muteam.backend.controller;
 
 import com.muteam.backend.dto.request.ArticuloRequest;
 import com.muteam.backend.dto.response.ArticuloDTO;
+import com.muteam.backend.model.Usuario;
+import com.muteam.backend.repository.UsuarioRepository;
 import com.muteam.backend.service.ArticuloService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/articulos")
-// @CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "*")
 public class ArticuloController {
 
     private final ArticuloService articuloService;
+    private final UsuarioRepository usuarioRepository;
 
-    public ArticuloController(ArticuloService articuloService) {
+    public ArticuloController(ArticuloService articuloService, UsuarioRepository usuarioRepository) {
         this.articuloService = articuloService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     // ---------------------------------------------------------------
@@ -53,23 +58,30 @@ public class ArticuloController {
         return ResponseEntity.ok(feed);
     }
 
-
     // ---------------------------------------------------------------
     // 3. FORMULARIO CREAR ARTICULO
     // ---------------------------------------------------------------
     @PostMapping
-    public ResponseEntity<ArticuloDTO> crear(
+    public ResponseEntity<?> crear(
             @Valid @RequestBody ArticuloRequest request,
-            @RequestHeader(value = "X-User-Id", defaultValue = "1") Long userId // Temporal
-    ) {
+            Authentication authentication) {
         try {
+            Long userId = obtenerUsuarioId(authentication);
             ArticuloDTO nuevoArticulo = articuloService.guardarHistoriaCompleta(request, userId);
             return ResponseEntity.status(201).body(nuevoArticulo);
         } catch (Exception e) {
             // Log detallado para debugging
             System.err.println("ERROR AL CREAR ARTÍCULO: " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
         }
+    }
+
+    // Helper method para obtener el ID del usuario autenticado
+    private Long obtenerUsuarioId(Authentication authentication) {
+        String email = authentication.getName();
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
+        return usuario.getId();
     }
 }

@@ -1,46 +1,87 @@
 package com.muteam.backend.model;
 
+import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 
+@Entity
+@Table(name = "personas")
 public class Persona {
-    private int id;
-    private int articulo_id;
-    private String nombre;
-    private String apodos;
-    private OffsetDateTime cumple;
-    private String telefono;
-    private String direccion;
-    private String estado;
-    private String lore;
-    private int evento_destacado_id;
 
-    public Persona(int id, int articlo_id, String nombre, String apodos, OffsetDateTime cumple, String telefono, String direccion, String estado, String lore, int evento_destacado_id) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "articulo_id")
+    private Long articuloId;
+
+    @Column(nullable = false)
+    private String nombre;
+
+    @Column
+    private String apodos;
+
+    @Column
+    private OffsetDateTime cumple;
+
+    @Column
+    private String telefono;
+
+    @Column
+    private String direccion;
+
+    @Column
+    private String estado;
+
+    @Column(name = "lore_general", columnDefinition = "TEXT")
+    private String loreGeneral;
+
+    @Column(name = "evento_destacado_id")
+    private Long eventoDestacadoId;
+
+    @OneToMany(mappedBy = "persona")
+    private java.util.List<PersonaEvento> eventos;
+
+    @ManyToMany
+    @JoinTable(name = "personas_grupos", joinColumns = @JoinColumn(name = "persona_id"), inverseJoinColumns = @JoinColumn(name = "grupo_id"))
+    private java.util.List<Grupo> grupos;
+
+    @OneToMany(mappedBy = "personaOrigen")
+    private java.util.List<PersonaRelacion> relaciones;
+
+    // Constructor vacío requerido por JPA
+    public Persona() {
+    }
+
+    // Constructor completo
+    public Persona(Long id, String nombre, String apodos, OffsetDateTime cumple,
+            String telefono, String direccion, String estado, String loreGeneral,
+            Long eventoDestacadoId) {
         this.id = id;
-        this.articulo_id = articlo_id;
         this.nombre = nombre;
         this.apodos = apodos;
         this.cumple = cumple;
         this.telefono = telefono;
         this.direccion = direccion;
         this.estado = estado;
-        this.lore = lore;
-        this.evento_destacado_id = evento_destacado_id;
+        this.loreGeneral = loreGeneral;
+        this.eventoDestacadoId = eventoDestacadoId;
     }
 
-    public int getId() {
+    // Getters y Setters
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public int getArticulo_id() {
-        return articulo_id;
+    public Long getArticuloId() {
+        return articuloId;
     }
 
-    public void setArticulo_id(int articulo_id) {
-        this.articulo_id = articulo_id;
+    public void setArticuloId(Long articuloId) {
+        this.articuloId = articuloId;
     }
 
     public String getNombre() {
@@ -91,19 +132,43 @@ public class Persona {
         this.estado = estado;
     }
 
-    public String getLore() {
-        return lore;
+    public String getLoreGeneral() {
+        return loreGeneral;
     }
 
-    public void setLore(String lore) {
-        this.lore = lore;
+    public void setLoreGeneral(String loreGeneral) {
+        this.loreGeneral = loreGeneral;
     }
 
-    public int getEvento_destacado_id() {
-        return evento_destacado_id;
+    public Long getEventoDestacadoId() {
+        return eventoDestacadoId;
     }
 
-    public void setEvento_destacado_id(int evento_destacado_id) {
-        this.evento_destacado_id = evento_destacado_id;
+    public void setEventoDestacadoId(Long eventoDestacadoId) {
+        this.eventoDestacadoId = eventoDestacadoId;
+    }
+
+    public java.util.List<PersonaEvento> getEventos() {
+        return eventos;
+    }
+
+    public void setEventos(java.util.List<PersonaEvento> eventos) {
+        this.eventos = eventos;
+    }
+
+    public java.util.List<Grupo> getGrupos() {
+        return grupos;
+    }
+
+    public void setGrupos(java.util.List<Grupo> grupos) {
+        this.grupos = grupos;
+    }
+
+    public java.util.List<PersonaRelacion> getRelaciones() {
+        return relaciones;
+    }
+
+    public void setRelaciones(java.util.List<PersonaRelacion> relaciones) {
+        this.relaciones = relaciones;
     }
 }

@@ -1,46 +1,40 @@
 package com.muteam.backend.dto.create;
 
-import java.time.OffsetDateTime;
-
 public class PersonaCreateDTO {
-    private int id;
-    private int articulo_id;
     private String nombre;
     private String apodos;
-    private OffsetDateTime cumple;
+    private String cumple;
     private String telefono;
     private String direccion;
     private String estado;
-    private String lore;
-    private int evento_destacado_id;
+    private String loreGeneral;
+    private Long eventoDestacadoId;
+    private java.util.List<PersonaRelacionCreateDTO> relaciones;
+    private java.util.List<Long> gruposIds;
+    private java.util.List<PersonaEventoCreateDTO> eventos;
 
-    public PersonaCreateDTO(int id, int articlo_id, String nombre, String apodos, OffsetDateTime cumple, String telefono, String direccion, String estado, String lore, int evento_destacado_id) {
-        this.id = id;
-        this.articulo_id = articlo_id;
+    // Constructor vacío
+    public PersonaCreateDTO() {
+    }
+
+    // Constructor completo
+    public PersonaCreateDTO(String nombre, String apodos, String cumple,
+            String telefono, String direccion, String estado,
+            String loreGeneral, Long eventoDestacadoId,
+            java.util.List<PersonaRelacionCreateDTO> relaciones,
+            java.util.List<Long> gruposIds,
+            java.util.List<PersonaEventoCreateDTO> eventos) {
         this.nombre = nombre;
         this.apodos = apodos;
         this.cumple = cumple;
         this.telefono = telefono;
         this.direccion = direccion;
         this.estado = estado;
-        this.lore = lore;
-        this.evento_destacado_id = evento_destacado_id;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getArticulo_id() {
-        return articulo_id;
-    }
-
-    public void setArticulo_id(int articulo_id) {
-        this.articulo_id = articulo_id;
+        this.loreGeneral = loreGeneral;
+        this.eventoDestacadoId = eventoDestacadoId;
+        this.relaciones = relaciones;
+        this.gruposIds = gruposIds;
+        this.eventos = eventos;
     }
 
     public String getNombre() {
@@ -59,11 +53,11 @@ public class PersonaCreateDTO {
         this.apodos = apodos;
     }
 
-    public OffsetDateTime getCumple() {
+    public String getCumple() {
         return cumple;
     }
 
-    public void setCumple(OffsetDateTime cumple) {
+    public void setCumple(String cumple) {
         this.cumple = cumple;
     }
 
@@ -91,19 +85,43 @@ public class PersonaCreateDTO {
         this.estado = estado;
     }
 
-    public String getLore() {
-        return lore;
+    public String getLoreGeneral() {
+        return loreGeneral;
     }
 
-    public void setLore(String lore) {
-        this.lore = lore;
+    public void setLoreGeneral(String loreGeneral) {
+        this.loreGeneral = loreGeneral;
     }
 
-    public int getEvento_destacado_id() {
-        return evento_destacado_id;
+    public Long getEventoDestacadoId() {
+        return eventoDestacadoId;
     }
 
-    public void setEvento_destacado_id(int evento_destacado_id) {
-        this.evento_destacado_id = evento_destacado_id;
+    public void setEventoDestacadoId(Long eventoDestacadoId) {
+        this.eventoDestacadoId = eventoDestacadoId;
+    }
+
+    public java.util.List<PersonaRelacionCreateDTO> getRelaciones() {
+        return relaciones;
+    }
+
+    public void setRelaciones(java.util.List<PersonaRelacionCreateDTO> relaciones) {
+        this.relaciones = relaciones;
+    }
+
+    public java.util.List<Long> getGruposIds() {
+        return gruposIds;
+    }
+
+    public void setGruposIds(java.util.List<Long> gruposIds) {
+        this.gruposIds = gruposIds;
+    }
+
+    public java.util.List<PersonaEventoCreateDTO> getEventos() {
+        return eventos;
+    }
+
+    public void setEventos(java.util.List<PersonaEventoCreateDTO> eventos) {
+        this.eventos = eventos;
     }
 }

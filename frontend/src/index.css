@@ -2,9 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Esto aplica colores personalizados a toda la app */
+/* Estilos base para la aplicación */
 body {
-  @apply bg-wiki-bg text-gray-800 font-sans;
+  @apply bg-wiki-bg text-wiki-text font-sans;
   margin: 0;
-  display: block; /* Importante para quitar el centrado forzoso de Vite */
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
 }

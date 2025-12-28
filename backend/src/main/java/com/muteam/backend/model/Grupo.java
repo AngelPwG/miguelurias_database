@@ -1,34 +1,60 @@
 package com.muteam.backend.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "grupos")
 public class Grupo {
-    private int id;
-    private int articulo_id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "articulo_id")
+    private Long articuloId;
+
+    @Column
     private String nombre;
-    private String lider;
+
+    @Column(name = "lider_nombre")
+    private String liderNombre;
+
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    public Grupo(int id, int articulo_id, String nombre, String lider, String descripcion) {
+    @ManyToMany
+    @JoinTable(name = "grupos_eventos", joinColumns = @JoinColumn(name = "grupo_id"), inverseJoinColumns = @JoinColumn(name = "evento_id"))
+    private java.util.List<Evento> eventos;
+
+    // Relación ManyToMany con Personas (mappedBy en Persona)
+    @ManyToMany(mappedBy = "grupos")
+    private java.util.List<Persona> personas;
+
+    public Grupo() {
+    }
+
+    public Grupo(Long id, Long articuloId, String nombre, String liderNombre, String descripcion) {
         this.id = id;
-        this.articulo_id = articulo_id;
+        this.articuloId = articuloId;
         this.nombre = nombre;
-        this.lider = lider;
+        this.liderNombre = liderNombre;
         this.descripcion = descripcion;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public int getArticulo_id() {
-        return articulo_id;
+    public Long getArticuloId() {
+        return articuloId;
     }
 
-    public void setArticulo_id(int articulo_id) {
-        this.articulo_id = articulo_id;
+    public void setArticuloId(Long articuloId) {
+        this.articuloId = articuloId;
     }
 
     public String getNombre() {
@@ -39,12 +65,12 @@ public class Grupo {
         this.nombre = nombre;
     }
 
-    public String getLider() {
-        return lider;
+    public String getLiderNombre() {
+        return liderNombre;
     }
 
-    public void setLider(String lider) {
-        this.lider = lider;
+    public void setLiderNombre(String liderNombre) {
+        this.liderNombre = liderNombre;
     }
 
     public String getDescripcion() {
@@ -53,5 +79,21 @@ public class Grupo {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public java.util.List<Evento> getEventos() {
+        return eventos;
+    }
+
+    public void setEventos(java.util.List<Evento> eventos) {
+        this.eventos = eventos;
+    }
+
+    public java.util.List<Persona> getPersonas() {
+        return personas;
+    }
+
+    public void setPersonas(java.util.List<Persona> personas) {
+        this.personas = personas;
     }
 }

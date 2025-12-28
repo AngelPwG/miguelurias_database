@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -18,7 +19,8 @@ public class JwtTokenProvider {
     private static final int JWT_EXPIRATION_MS = 86400000;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
+        // FORCE UTF-8 to avoid Windows CP1252 issues
+        return Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(Authentication authentication) {
@@ -53,8 +55,16 @@ public class JwtTokenProvider {
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(authToken);
             return true;
-        } catch (JwtException | IllegalArgumentException ex) {
-            System.err.println("Token JWT inválido: " + ex.getMessage());
+        } catch (SecurityException ex) {
+            System.out.println("DEBUG: JWT Security Signature validation failed: " + ex.getMessage());
+        } catch (MalformedJwtException ex) {
+            System.out.println("DEBUG: JWT Malformed: " + ex.getMessage());
+        } catch (ExpiredJwtException ex) {
+            System.out.println("DEBUG: JWT Expired: " + ex.getMessage());
+        } catch (UnsupportedJwtException ex) {
+            System.out.println("DEBUG: JWT Unsupported: " + ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            System.out.println("DEBUG: JWT Claims empty/illegal: " + ex.getMessage());
         }
         return false;
     }
