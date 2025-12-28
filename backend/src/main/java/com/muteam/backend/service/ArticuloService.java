@@ -70,7 +70,8 @@ public class ArticuloService {
                         s.getTipo(),
                         s.getOrden(),
                         s.getCuerpo(),
-                        s.getMultimedia()))
+                        s.getMultimedia(),
+                        s.getNivel()))
                 .collect(Collectors.toList());
 
         // 4. Buscar al Autor
@@ -290,8 +291,8 @@ public class ArticuloService {
                         seccion.getTipo(),
                         seccion.getOrden(),
                         seccion.getCuerpo(), // Contenido de texto
-                        seccion.getMultimedia()// url de la foto (si hay)
-                ))
+                        seccion.getMultimedia(), // url de la foto (si hay)
+                        seccion.getNivel()))
                 .toList();
 
         return new ArticuloDTO(
