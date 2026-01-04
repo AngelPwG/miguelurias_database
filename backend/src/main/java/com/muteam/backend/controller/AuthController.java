@@ -1,11 +1,9 @@
 package com.muteam.backend.controller;
 
 import com.muteam.backend.dto.request.LoginRequest;
-import com.muteam.backend.dto.response.EventoResponseDTO;
 import com.muteam.backend.model.Usuario;
 import com.muteam.backend.repository.UsuarioRepository;
 import com.muteam.backend.security.JwtTokenProvider;
-import com.muteam.backend.service.EventoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;

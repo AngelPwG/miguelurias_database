@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/api/personas")
@@ -25,18 +25,38 @@ public class PersonaController {
         this.usuarioRepository = usuarioRepository;
     }
 
-    // Obtener todas las personas
+    // Obtener todas las personas (Paginado)
     @GetMapping
-    public ResponseEntity<List<PersonaResponseDTO>> obtenerPersonas() {
-        List<PersonaResponseDTO> personas = personaService.obtenerPersonas();
+    public ResponseEntity<Page<PersonaResponseDTO>> obtenerPersonas(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestHeader(value = "X-User-Level", defaultValue = "1") Integer userLevel) {
+
+        Page<PersonaResponseDTO> personas = personaService.obtenerPersonas(page, size, userLevel);
         return ResponseEntity.ok(personas);
+    }
+
+    @GetMapping("/simple")
+    public ResponseEntity<java.util.List<com.muteam.backend.dto.response.PersonaSimpleDTO>> obtenerPersonasSimple(
+            @RequestHeader(value = "X-User-Level", defaultValue = "1") Integer userLevel) {
+        return ResponseEntity.ok(personaService.obtenerPersonasSimple(userLevel));
+    }
+
+    @GetMapping("/cards")
+    public ResponseEntity<Page<com.muteam.backend.dto.response.PersonaCardDTO>> obtenerPersonasCards(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestHeader(value = "X-User-Level", defaultValue = "1") Integer userLevel) {
+        return ResponseEntity.ok(personaService.obtenerPersonasCards(page, size, userLevel));
     }
 
     // Obtener una persona por ID
     @GetMapping("/{id}")
-    public ResponseEntity<PersonaResponseDTO> obtenerPersonaPorId(@PathVariable Long id) {
+    public ResponseEntity<PersonaResponseDTO> obtenerPersonaPorId(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-User-Level", defaultValue = "1") Integer userLevel) {
         try {
-            PersonaResponseDTO persona = personaService.obtenerPersonaPorId(id);
+            PersonaResponseDTO persona = personaService.obtenerPersonaPorId(id, userLevel);
             return ResponseEntity.ok(persona);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

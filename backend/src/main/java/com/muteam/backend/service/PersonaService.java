@@ -16,6 +16,9 @@ import com.muteam.backend.model.Articulo;
 import java.util.Optional;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 @Service
 public class PersonaService {
@@ -43,18 +46,56 @@ public class PersonaService {
         this.personaEventoRepository = personaEventoRepository;
     }
 
-    // Obtener todas las personas
-    public List<PersonaResponseDTO> obtenerPersonas() {
-        List<Persona> personas = personaRepository.findAll();
-        return personas.stream()
-                .map(this::convertirADTO)
-                .collect(Collectors.toList());
+    // Obtener todas las personas (Paginado y Filtrado)
+    public Page<PersonaResponseDTO> obtenerPersonas(int page, int size, Integer userLevel) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Persona> personasPage;
+
+        if (userLevel == null) {
+            userLevel = 0; // Default level for anonymous/unknown
+        }
+
+        // Si es admin (nivel alto, ej 10), ve todo. Pero la query filtra <= nivel.
+        // Asumimos que el nivel máximo es lo que tenga el usuario.
+        personasPage = personaRepository.findAllByNivelAcceso(userLevel, pageable);
+
+        return personasPage.map(this::convertirADTO);
+    }
+
+    public List<com.muteam.backend.dto.response.PersonaSimpleDTO> obtenerPersonasSimple(Integer userLevel) {
+        if (userLevel == null)
+            userLevel = 0;
+        return personaRepository.findAllSimpleByNivelAcceso(userLevel);
+    }
+
+    public Page<com.muteam.backend.dto.response.PersonaCardDTO> obtenerPersonasCards(int page, int size,
+            Integer userLevel) {
+        if (userLevel == null)
+            userLevel = 0;
+        Pageable pageable = PageRequest.of(page, size);
+        return personaRepository.findAllCardsByNivelAcceso(userLevel, pageable);
     }
 
     // Obtener persona por ID
-    public PersonaResponseDTO obtenerPersonaPorId(Long id) {
+    public PersonaResponseDTO obtenerPersonaPorId(Long id, Integer userLevel) {
         Persona persona = personaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Persona con ID " + id + " no encontrada"));
+
+        // Security check: Verify access level
+        if (persona.getArticuloId() != null) {
+            Optional<Articulo> art = articuloRepository.findById(persona.getArticuloId());
+            if (art.isPresent()) {
+                int nivelArticulo = art.get().getNivelAcceso() != null ? art.get().getNivelAcceso() : 0;
+                int nivelUsuario = userLevel != null ? userLevel : 0;
+
+                if (nivelArticulo > nivelUsuario) {
+                    // Throw exception to mask existence (matches user requirement "ni siquiera que
+                    // existe")
+                    throw new RuntimeException("Persona con ID " + id + " no encontrada o nivel insuficiente");
+                }
+            }
+        }
+
         return convertirADTO(persona);
     }
 
@@ -169,7 +210,9 @@ public class PersonaService {
                                     e.getFechaIni(),
                                     e.getFechaFin(),
                                     e.getUbicacion(),
-                                    e.getSinopsis());
+                                    e.getSinopsis(),
+                                    null, // imagenPortadaUrl (not needed here or too expensive to fetch)
+                                    List.of());
                         })
                         .collect(Collectors.toList());
 

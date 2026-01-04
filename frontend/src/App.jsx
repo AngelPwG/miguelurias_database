@@ -2,8 +2,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import CrearPersonaPage from './pages/CrearPersonaPage';
+import CrearEventoPage from './pages/CrearEventoPage';
+import EditarEventoPage from './pages/EditarEventoPage'; // Import
 import EditarPersonaPage from './pages/EditarPersonaPage';
 import PersonaDetailPage from './pages/PersonaDetailPage';
+import EventoDetailPage from './pages/EventoDetailPage';
 import RegisterPage from './pages/RegisterPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -59,6 +62,30 @@ function App() {
           element={
             <ProtectedRoute>
               <CrearPersonaPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/crear-evento"
+          element={
+            <ProtectedRoute>
+              <CrearEventoPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/editar-evento/:id"
+          element={
+            <ProtectedRoute>
+              <EditarEventoPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/eventos/:id"
+          element={
+            <ProtectedRoute>
+              <EventoDetailPage />
             </ProtectedRoute>
           }
         />

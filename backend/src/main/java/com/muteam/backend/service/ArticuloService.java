@@ -84,7 +84,9 @@ public class ArticuloService {
                 articulo.getTitulo(),
                 articulo.getVistas(),
                 articulo.getFechaCreacion(),
-                autor.getUsername(),
+                autor != null ? autor.getUsername() : "Desconocido",
+                articulo.getAutorId(),
+                articulo.getNivelAcceso(),
                 galeria,
                 seccionesDTO);
     }
@@ -144,6 +146,7 @@ public class ArticuloService {
         Articulo articulo = new Articulo();
         articulo.setTitulo(request.titulo());
         articulo.setAutorId(usuarioId);
+        articulo.setNivelAcceso(request.nivelAcceso() != null ? request.nivelAcceso() : 0);
         articulo.setFechaCreacion(LocalDateTime.now());
         articulo.setTipo(request.tipo());
         // Al hacer .save(), la base de datos genera el ID y lo pone en el objeto
@@ -218,6 +221,7 @@ public class ArticuloService {
         articulo.setTitulo(request.titulo());
         // articulo.setTipo(request.tipo()); // Generalmente el tipo no cambia, pero
         // podrías permitirlo
+        articulo.setNivelAcceso(request.nivelAcceso() != null ? request.nivelAcceso() : 0);
         articulo.setFechaActualizacion(LocalDateTime.now()); // Si tienes este campo (o reutilizas fechaCreacion si no)
         // Nota: en tu modelo no vi fechaActualizacion explicito en Articulo.java
         // original,
@@ -301,6 +305,8 @@ public class ArticuloService {
                 articulo.getVistas(),
                 articulo.getFechaCreacion(),
                 "Autor desconocido",
+                articulo.getAutorId(), // Added autorId
+                articulo.getNivelAcceso(),
                 galeria,
                 seccionesDTO);
     }
@@ -317,9 +323,30 @@ public class ArticuloService {
                         a.getVistas(),
                         a.getFechaCreacion(),
                         "Autor ID " + a.getAutorId(), // Temporal
+                        a.getAutorId(), // Added autorId
+                        a.getNivelAcceso(),
                         List.of(),
                         List.of() // Mandamos lista vacía. El Home no necesita leer el contenido.
                 ))
                 .collect(Collectors.toList());
+    }
+
+    public void eliminarArticulo(Long articuloId, Long usuarioId, boolean esAdmin) {
+        Articulo articulo = articuloRepository.findById(articuloId)
+                .orElseThrow(() -> new RuntimeException("Artículo no encontrado con ID: " + articuloId));
+
+        // Si es admin, puede borrar cualquiera
+        if (esAdmin) {
+            articuloRepository.delete(articulo);
+            return;
+        }
+
+        // Si no es admin, debe ser el autor
+        if (!articulo.getAutorId().equals(usuarioId)) {
+            throw new RuntimeException(
+                    "No tienes permiso para eliminar este artículo. Solo el autor o un administrador pueden eliminarlo.");
+        }
+
+        articuloRepository.delete(articulo);
     }
 }

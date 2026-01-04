@@ -30,22 +30,26 @@ public class Articulo {
     @Column(name = "autor_id")
     private Long autorId; // Mantenemos solo el ID para simplificar por ahora
 
+    @Column(name = "nivel_acceso", columnDefinition = "int default 0")
+    private Integer nivelAcceso = 0;
+
     // --- RELACIÓN CON SECCIONES (Tus piezas de LEGO) ---
-    // FetchType.LAZY: No trae las secciones a menos que las pidas o las uses en la transacción
+    // FetchType.LAZY: No trae las secciones a menos que las pidas o las uses en la
+    // transacción
     @OneToMany(mappedBy = "articulo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Seccion> secciones = new ArrayList<>();
 
     // --- Relación con MULTIMEDIA (Galería/Portada) ---
     @ManyToMany
-    @JoinTable(
-            name = "multimedia_articulos", // Nombre exacto de tu tabla intermedia SQL
+    @JoinTable(name = "multimedia_articulos", // Nombre exacto de tu tabla intermedia SQL
             joinColumns = @JoinColumn(name = "articulo_id"), // FK hacia mí
             inverseJoinColumns = @JoinColumn(name = "multimedia_id") // FK hacia la otra tabla
     )
     private List<Multimedia> galeria = new ArrayList<>();
 
     // Constructor vacío obligatorio
-    public Articulo() {}
+    public Articulo() {
+    }
 
     public Long getId() {
         return id;
@@ -101,6 +105,14 @@ public class Articulo {
 
     public void setAutorId(Long autorId) {
         this.autorId = autorId;
+    }
+
+    public Integer getNivelAcceso() {
+        return nivelAcceso;
+    }
+
+    public void setNivelAcceso(Integer nivelAcceso) {
+        this.nivelAcceso = nivelAcceso;
     }
 
     public List<Seccion> getSecciones() {

@@ -34,14 +34,19 @@ const LoginPage = () => {
 
                 const userLevel = meResponse.data.nivel || 1;
                 const userRole = meResponse.data.rol || 'USER';
+                const userId = meResponse.data.id; // Get ID
+
                 localStorage.setItem('userLevel', userLevel);
                 localStorage.setItem('userRole', userRole);
-                console.log("Nivel y Rol guardados:", userLevel, userRole);
+                if (userId) localStorage.setItem('userId', userId); // Save ID
+
+                console.log("Datos de usuario guardados:", { userLevel, userRole, userId });
 
             } catch (meError) {
                 console.error("No se pudo obtener el perfil, asumiendo nivel 1", meError);
                 localStorage.setItem('userLevel', 1);
                 localStorage.setItem('userRole', 'USER');
+                // userId might be missing if offline/error
             }
 
             navigate('/');

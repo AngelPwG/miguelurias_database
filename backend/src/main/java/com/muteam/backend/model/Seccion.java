@@ -38,6 +38,42 @@ public class Seccion {
     @JoinColumn(name = "multimedia_id")
     private Multimedia multimedia;
 
+    public Long getId() {
+        return id;
+    }
+
+    public Articulo getArticulo() {
+        return articulo;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public String getCuerpo() {
+        return cuerpo;
+    }
+
+    public Integer getNivel() {
+        return nivel;
+    }
+
+    public Integer getOrden() {
+        return orden;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public Long getSeccionPadreId() {
+        return seccionPadreId;
+    }
+
+    public Multimedia getMultimedia() {
+        return multimedia;
+    }
+
     public Seccion() {
     }
 

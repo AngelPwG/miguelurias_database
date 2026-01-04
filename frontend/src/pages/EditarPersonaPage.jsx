@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { obtenerPersonaPorId, actualizarPersona, obtenerPersonas } from '../api/personaService';
+import { obtenerPersonaPorId, actualizarPersona, obtenerPersonasSimple } from '../api/personaService';
 import { obtenerGrupos } from '../api/grupoService';
-import { obtenerEventos } from '../api/eventoService';
+import { obtenerEventosSimple } from '../api/eventoService';
 import { obtenerArticuloPorId } from '../api/articuloService';
 import { subirArchivo, subirMultiplesArchivos } from '../api/multimediaService';
 import SeccionEditor from '../components/SeccionEditor';
@@ -61,13 +61,13 @@ const EditarPersonaPage = () => {
                 setLoading(true);
 
                 // 0. Cargar listas completas (personas, grupos, eventos) INDEPENDIENTEMENTE
-                
+
                 // Personas
                 try {
-                    console.log("Cargando lista de personas...");
-                    const listaPersonas = await obtenerPersonas();
-                    console.log("Lista de personas cargada:", listaPersonas);
-                    setTodasPersonas(listaPersonas);
+                    console.log("Cargando lista de personas (simple)...");
+                    const dataPersonas = await obtenerPersonasSimple();
+                    console.log("Lista de personas cargada:", dataPersonas);
+                    setTodasPersonas(dataPersonas || []);
                 } catch (e) {
                     console.error("Error cargando personas:", e);
                 }
@@ -82,8 +82,8 @@ const EditarPersonaPage = () => {
 
                 // Eventos
                 try {
-                    const listaEventos = await obtenerEventos();
-                    setTodosEventos(listaEventos);
+                    const dataEventos = await obtenerEventosSimple();
+                    setTodosEventos(dataEventos || []);
                 } catch (e) {
                     console.error("Error cargando eventos:", e);
                 }
@@ -134,7 +134,8 @@ const EditarPersonaPage = () => {
                             contenido: s.contenido || '', // Asegurar campo
                             titulo: s.titulo || '',
                             nivel: s.nivel !== undefined ? s.nivel : 1
-                        })) || []
+                        })) || [],
+                        nivelAcceso: articulo.nivelAcceso || 0 // Added this
                     });
 
                     // Cargar galería existente
@@ -153,6 +154,16 @@ const EditarPersonaPage = () => {
 
         if (id) cargarDatos();
     }, [id]);
+
+    // Validar acceso al montar (Lectores no pueden editar)
+    useEffect(() => {
+        const userRole = localStorage.getItem('userRole') || 'USER';
+        // Asumimos que sólo admin o editor pueden editar. Lector (USER) no puede.
+        if (userRole === 'ROLE_user' || userRole === 'USER') {
+            alert('⛔ Acceso denegado: No tienes permisos para editar.');
+            navigate('/');
+        }
+    }, [navigate]);
 
     const handlePersonaChange = (e) => {
         const { name, value } = e.target;
@@ -302,6 +313,21 @@ const EditarPersonaPage = () => {
         setError(null);
 
         try {
+            // 0. Validaciones
+            const userRole = localStorage.getItem('userRole') || 'USER';
+            const userLevel = Number(localStorage.getItem('userLevel')) || 0;
+            const nivelArticulo = Number(articuloData.nivelAcceso);
+
+            // Regla General: Nivel máximo de artículo es 5
+            if (nivelArticulo > 5) {
+                throw new Error("⛔ El nivel máximo permitido para cualquier artículo es 5.");
+            }
+
+            // Regla Editor: Max nivel artículo <= nivel usuario
+            if (userRole === 'ROLE_editor' && nivelArticulo > userLevel) {
+                throw new Error(`⛔ Como Editor, no puedes guardar contenido con nivel mayor a tu rango (${userLevel}).`);
+            }
+
             // 1. Subir NUEVAS fotos de galería
             let nuevosIdsGaleria = [];
             if (galeriaFiles.length > 0) {
@@ -311,6 +337,18 @@ const EditarPersonaPage = () => {
             // 2. Procesar Secciones
             const seccionesProcesadas = await Promise.all(
                 articuloData.secciones.map(async (seccion) => {
+                    const nivelSeccion = Number(seccion.nivel);
+
+                    // Regla General: Nivel Sección >= Nivel Artículo
+                    if (nivelSeccion < nivelArticulo) {
+                        throw new Error(`⛔ La sección "${seccion.titulo || 'Sin Título'}" tiene nivel ${nivelSeccion}, inferior al nivel del artículo (${nivelArticulo}).`);
+                    }
+
+                    // Regla Editor: Nivel Sección <= Nivel Usuario
+                    if (userRole === 'ROLE_editor' && nivelSeccion > userLevel) {
+                        throw new Error(`⛔ Sección "${seccion.titulo || 'Sin Título'}" excede tu nivel de usuario (${userLevel}).`);
+                    }
+
                     if (seccion.tipo === 'imagen' && seccion.archivoImagen) {
                         const multimediaId = await subirArchivo(seccion.archivoImagen, 'imagen', seccion.titulo || '');
                         return {
@@ -355,7 +393,8 @@ const EditarPersonaPage = () => {
                 titulo: articuloData.titulo,
                 tipo: articuloData.tipo,
                 galeriaMultimediaIds: galeriaUnica,
-                secciones: seccionesProcesadas
+                secciones: seccionesProcesadas,
+                nivelAcceso: articuloData.nivelAcceso // Sent to backend
             };
 
             const relacionesDTO = relaciones.map(r => ({
@@ -503,6 +542,7 @@ const EditarPersonaPage = () => {
                                 <option value="">-- Seleccionar Persona --</option>
                                 {todasPersonas
                                     .filter(p => p.id !== Number(id)) // Excluirse a sí mismo
+                                    .filter(p => !relaciones.some(r => Number(r.personaDestinoId) === p.id)) // Excluir ya relacionados
                                     .map(p => (
                                         <option key={p.id} value={p.id}>
                                             {p.nombre}
@@ -632,6 +672,20 @@ const EditarPersonaPage = () => {
                                 <label className="block text-sm font-bold mb-2">Título del Artículo</label>
                                 <input type="text" name="titulo" value={articuloData.titulo} onChange={handleArticuloChange}
                                     className="w-full bg-wiki-bg border border-wiki-border rounded px-3 py-2 text-white focus:border-wiki-accent focus:outline-none" />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold mb-2">Nivel de Acceso</label>
+                                <input
+                                    type="number"
+                                    name="nivelAcceso"
+                                    value={articuloData.nivelAcceso || 0}
+                                    onChange={handleArticuloChange}
+                                    min="1"
+                                    max={Math.min(5, Number(localStorage.getItem('userLevel')) || 0)}
+                                    className="w-full bg-wiki-bg border border-wiki-border rounded px-3 py-2 text-white focus:border-wiki-accent focus:outline-none"
+                                />
+                                {/* removed explanatory helper text */}
                             </div>
                             <div className="space-y-4 mt-6">
                                 {articuloData.secciones.map((seccion, index) => (

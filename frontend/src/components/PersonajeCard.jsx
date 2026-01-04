@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const PersonajeCard = ({ id, nombreCompleto, titulo, fotoUrl }) => {
+const PersonajeCard = ({ id, nombreCompleto, titulo, fotoUrl, shouldShowDelete, onDelete }) => {
   return (
     // CAMBIO: bg-wiki-block (gris oscuro) y border-wiki-border
     <div className="bg-wiki-block border border-wiki-border rounded-lg overflow-hidden hover:border-wiki-accent transition-all duration-300 group">
@@ -30,6 +30,20 @@ const PersonajeCard = ({ id, nombreCompleto, titulo, fotoUrl }) => {
         >
           ACCEDER DATOS →
         </Link>
+
+        {/* BOTÓN ELIMINAR PROVISIONAL */}
+        {shouldShowDelete && (
+          <button
+            onClick={() => {
+              if (window.confirm('¿Estás seguro de querer eliminar este artículo? Esta acción es irreversible.')) {
+                onDelete(id);
+              }
+            }}
+            className="block w-full mt-2 text-center text-xs font-bold text-red-400 border border-red-500/30 bg-red-900/10 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition-colors"
+          >
+            ❌ ELIMINAR (Admin/Owner)
+          </button>
+        )}
       </div>
     </div>
   );

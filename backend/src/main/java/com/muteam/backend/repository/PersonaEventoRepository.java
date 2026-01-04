@@ -14,4 +14,6 @@ public interface PersonaEventoRepository extends JpaRepository<PersonaEvento, Pe
     List<PersonaEvento> findByEventoId(Long eventoId);
 
     void deleteByPersonaId(Long personaId);
+
+    void deleteByEventoId(Long eventoId);
 }

@@ -77,6 +77,31 @@ public class ArticuloController {
         }
     }
 
+    // ---------------------------------------------------------------
+    // 4. ELIMINAR ARTICULO
+    // ---------------------------------------------------------------
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminar(
+            @PathVariable Long id,
+            Authentication authentication) {
+        try {
+            Long usuarioId = obtenerUsuarioId(authentication);
+
+            // Verificar si tiene rol de admin
+            boolean esAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
+
+            articuloService.eliminarArticulo(id, usuarioId, esAdmin);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            System.err.println("ERROR AL ELIMINAR ARTÍCULO: " + e.getMessage());
+            if (e.getMessage().contains("No tienes permiso")) {
+                return ResponseEntity.status(403).body(java.util.Map.of("message", e.getMessage()));
+            }
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+        }
+    }
+
     // Helper method para obtener el ID del usuario autenticado
     private Long obtenerUsuarioId(Authentication authentication) {
         String email = authentication.getName();

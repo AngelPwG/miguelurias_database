@@ -11,11 +11,19 @@ public class Multimedia {
     private Long id;
 
     private String url;
-    private String tipo;       // "imagen", "video"
+    private String tipo; // "imagen", "video"
     private String descripcion;
 
+    @Column(name = "orden")
+    private Integer orden;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "articulo_id")
+    private Articulo articulo;
+
     // Constructores, Getters y Setters
-    public Multimedia() {}
+    public Multimedia() {
+    }
 
     public Multimedia(Long id, String url, String tipo) {
         this.url = url;
@@ -52,5 +60,21 @@ public class Multimedia {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Articulo getArticulo() {
+        return articulo;
+    }
+
+    public void setArticulo(Articulo articulo) {
+        this.articulo = articulo;
+    }
+
+    public Integer getOrden() {
+        return orden;
+    }
+
+    public void setOrden(Integer orden) {
+        this.orden = orden;
     }
 }

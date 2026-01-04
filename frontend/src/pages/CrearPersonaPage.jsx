@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { crearPersona, obtenerPersonas } from '../api/personaService';
+import { crearPersona, obtenerPersonasSimple } from '../api/personaService';
 import { obtenerGrupos } from '../api/grupoService';
-import { obtenerEventos } from '../api/eventoService';
+import { obtenerEventosSimple } from '../api/eventoService';
 import { subirArchivo, subirMultiplesArchivos } from '../api/multimediaService';
 import SeccionEditor from '../components/SeccionEditor';
 
@@ -12,13 +12,23 @@ const CrearPersonaPage = () => {
     // Estado para los datos de la persona
     const [personaData, setPersonaData] = useState({
         nombre: '',
+        fechaNacimiento: '',
+        fechaDefuncion: '',
         apodos: '',
-        cumple: '',
-        telefono: '',
-        direccion: '',
-        estado: 'activo',
-        loreGeneral: ''
+        ocupacion: '',
+        nacionalidad: '',
+        estadoCivil: '',
+        biografia: '' // Resumen corto
     });
+
+    // Validar acceso al montar
+    useEffect(() => {
+        const userRole = localStorage.getItem('userRole') || 'USER';
+        if (userRole === 'ROLE_user' || userRole === 'USER') { // Lector
+            alert('⛔ Acceso denegado: Los lectores no pueden crear contenido.');
+            navigate('/');
+        }
+    }, [navigate]);
 
     // Estados para relaciones
     const [todasPersonas, setTodasPersonas] = useState([]);
@@ -44,6 +54,7 @@ const CrearPersonaPage = () => {
     const [articuloData, setArticuloData] = useState({
         titulo: '',
         tipo: 'persona',
+        nivelAcceso: 1, // Default 1
         secciones: [
             {
                 tipo: 'texto',
@@ -63,10 +74,10 @@ const CrearPersonaPage = () => {
             try {
                 // Personas
                 try {
-                    console.log("Cargando lista de personas...");
-                    const listaPersonas = await obtenerPersonas();
-                    console.log("Lista de personas cargada:", listaPersonas);
-                    setTodasPersonas(listaPersonas);
+                    console.log("Cargando lista de personas (simple)...");
+                    const dataPersonas = await obtenerPersonasSimple();
+                    console.log("Lista de personas cargada:", dataPersonas);
+                    setTodasPersonas(dataPersonas || []); // Returns list directly
                 } catch (e) {
                     console.error("Error cargando personas:", e);
                 }
@@ -81,8 +92,8 @@ const CrearPersonaPage = () => {
 
                 // Eventos
                 try {
-                    const listaEventos = await obtenerEventos();
-                    setTodosEventos(listaEventos);
+                    const dataEventos = await obtenerEventosSimple();
+                    setTodosEventos(dataEventos || []); // Returns list directly
                 } catch (e) {
                     console.error("Error cargando eventos:", e);
                 }
@@ -265,6 +276,24 @@ const CrearPersonaPage = () => {
         setError(null);
 
         try {
+            // 0. Validaciones de Permisos y Niveles
+            const userRole = localStorage.getItem('userRole');
+            const userLevel = Number(localStorage.getItem('userLevel')) || 0;
+            const nivelArticulo = Number(articuloData.nivelAcceso);
+
+            // Regla General: Nivel máximo de artículo es 5
+            if (nivelArticulo > 5) {
+                throw new Error("⛔ El nivel máximo permitido para cualquier artículo es 5.");
+            }
+
+            // Regla Editor: Nivel artículo <= Nivel Usuario
+            if (userRole === 'ROLE_editor' && nivelArticulo > userLevel) {
+                throw new Error(`⛔ Como Editor, no puedes crear contenido con nivel mayor a tu rango (${userLevel}).`);
+            }
+
+            // Regla Secciones: Validadas al iterar
+            // (Se hará en el paso 2 al preparar secciones)
+
             // 1️⃣ Subir imágenes de la galería principal
             let galeriaIds = [];
             if (galeriaFiles.length > 0) {
@@ -278,6 +307,19 @@ const CrearPersonaPage = () => {
             // 2️⃣ Subir imágenes de las secciones
             const seccionesConImagenes = await Promise.all(
                 articuloData.secciones.map(async (seccion) => {
+                    // Validar Nivel de Sección
+                    const nivelSeccion = Number(seccion.nivel);
+
+                    // Regla General: Nivel Sección >= Nivel Artículo
+                    if (nivelSeccion < nivelArticulo) {
+                        throw new Error(`⛔ La sección "${seccion.titulo || 'Sin Título'}" tiene nivel ${nivelSeccion}, inferior al nivel del artículo (${nivelArticulo}).`);
+                    }
+
+                    // Regla Editor: Nivel Sección <= Nivel Usuario
+                    if (userRole === 'ROLE_editor' && nivelSeccion > userLevel) {
+                        throw new Error(`⛔ Sección "${seccion.titulo || 'Sin Título'}" excede tu nivel de usuario (${userLevel}).`);
+                    }
+
                     if (seccion.tipo === 'imagen' && seccion.archivoImagen) {
                         try {
                             // Subir imagen y obtener ID
@@ -532,11 +574,13 @@ const CrearPersonaPage = () => {
                                 className="flex-1 bg-wiki-bg border border-wiki-border rounded px-3 py-2 text-white focus:border-wiki-accent"
                             >
                                 <option value="">-- Seleccionar Persona --</option>
-                                {todasPersonas.map(p => (
-                                    <option key={p.id} value={p.id}>
-                                        {p.nombre}
-                                    </option>
-                                ))}
+                                {todasPersonas
+                                    .filter(p => !relaciones.some(r => Number(r.personaDestinoId) === p.id))
+                                    .map(p => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.nombre}
+                                        </option>
+                                    ))}
                             </select>
                             <button type="button" onClick={handleAgregarRelacion}
                                 className="px-4 py-2 bg-purple-600 text-white font-bold rounded hover:bg-purple-500 transition-colors">
@@ -674,6 +718,20 @@ const CrearPersonaPage = () => {
                                 <p className="text-xs text-wiki-muted mt-1">
                                     Si lo dejas vacío, se usará: "Biografía de {personaData.nombre || '...'}"
                                 </p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold mb-2">Nivel de Acceso</label>
+                                <input
+                                    type="number"
+                                    name="nivelAcceso"
+                                    value={articuloData.nivelAcceso}
+                                    onChange={handleArticuloChange}
+                                    min="1"
+                                    max={Math.min(5, Number(localStorage.getItem('userLevel')) || 0)}
+                                    className="w-full bg-wiki-bg border border-wiki-border rounded px-3 py-2 text-white focus:border-wiki-accent focus:outline-none"
+                                />
+                                {/* removed explanatory helper text to make it feel more 'native' or internal */}
                             </div>
 
                             {/* Lista de secciones */}

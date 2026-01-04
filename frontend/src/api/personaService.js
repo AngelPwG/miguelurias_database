@@ -6,12 +6,48 @@ import api from './axiosConfig';
  * Obtener todas las personas
  * GET /api/personas
  */
-export const obtenerPersonas = async () => {
+/**
+ * Obtener todas las personas (Paginado)
+ * GET /api/personas?page=0&size=10
+ */
+export const obtenerPersonas = async (page = 0, size = 10) => {
     try {
-        const response = await api.get('/api/personas');
+        const response = await api.get('/api/personas', {
+            params: { page, size }
+        });
         return response.data;
     } catch (error) {
         console.error('Error al obtener personas:', error);
+        throw error;
+    }
+};
+
+/**
+ * Obtener lista simple de personas (ID y Nombre)
+ * GET /api/personas/simple
+ */
+export const obtenerPersonasSimple = async () => {
+    try {
+        const response = await api.get('/api/personas/simple');
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener lista simple de personas:', error);
+        throw error;
+    }
+};
+
+/**
+ * Obtener Cartas de Personas (Vista Resumida para Home)
+ * GET /api/personas/cards
+ */
+export const obtenerPersonasCards = async (page = 0, size = 10) => {
+    try {
+        const response = await api.get('/api/personas/cards', {
+            params: { page, size }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener cards de personas:', error);
         throw error;
     }
 };
@@ -100,3 +136,16 @@ export const actualizarPersona = async (id, personaData, articuloData) => {
  * 
  * await crearPersona(personaData, articuloData);
  */
+
+/**
+ * Eliminar una persona (artículo) por ID
+ * DELETE /api/articulos/{id}
+ */
+export const eliminarPersona = async (id) => {
+    try {
+        await api.delete(`/api/articulos/${id}`);
+    } catch (error) {
+        console.error(`Error al eliminar persona ${id}:`, error);
+        throw error;
+    }
+};

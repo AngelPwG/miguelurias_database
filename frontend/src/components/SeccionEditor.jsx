@@ -142,6 +142,9 @@ const SeccionEditor = ({ seccion, index, onUpdate, onDelete, onMoveUp, onMoveDow
                     required
                     className="w-full bg-wiki-block border border-wiki-border rounded px-3 py-2 text-white focus:border-wiki-accent focus:outline-none"
                 />
+                <p className="text-xs text-wiki-muted mt-1">
+                    Debe ser mayor o igual al nivel del artículo. Si eres Editor, no puedes exceder tu nivel.
+                </p>
             </div>
         </div>
     );

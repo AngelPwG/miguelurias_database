@@ -10,7 +10,9 @@ public record ArticuloDTO(
                 Integer vistas,
                 LocalDateTime fechaCreacion,
                 String autorNombre,
-                List<Multimedia> galeria, // Changed from urlsGaleria
+                Long autorId,
+                Integer nivelAcceso, // Added field
+                List<Multimedia> galeria,
                 List<SeccionDTO> secciones // Usamos una lista de DTOs, no de Entidades
 ) {
 }
